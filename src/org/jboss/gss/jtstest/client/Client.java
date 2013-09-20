@@ -27,6 +27,7 @@ import java.util.logging.Logger;
 import javax.naming.Context;
 import javax.naming.InitialContext;
 import javax.naming.NamingException;
+import javax.persistence.EntityManager;
 import javax.rmi.PortableRemoteObject;
 import javax.transaction.HeuristicMixedException;
 import javax.transaction.HeuristicRollbackException;
@@ -62,11 +63,11 @@ public class Client {
 				log.info("------------------> startUtx Passed");
 				beginWork(iter);
 
-				commitUtx();  
-
 				long stopTime = System.currentTimeMillis();
 				long runTime = stopTime - startTime;
 				log.info("iterations: " + iter + " Run time: " + runTime);
+			} else {
+				log.warning("Could not startUtx");
 			}
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -87,17 +88,25 @@ public class Client {
 		for (int cnt = 0; cnt < x; cnt++) {
 				
 				try {
+					
+					
 					MyBeans beanOne = (MyBeans) PortableRemoteObject.narrow(ctx.lookup("Beanone/remote"),MyBeans.class);
 						
+					//beanOne.setId(1);
 					beanOne.setMeaningless("m1");
 					
-					beanOne.removeMe();
+					log.info("persisting beanOne");
+					beanOne.persist();
 		
 					MyBeans beanTwo = (MyBeans) PortableRemoteObject.narrow(ctx.lookup("Beantwo/remote"),MyBeans.class);
 					
-					beanTwo.setMeaningless("m2");
+					//beanTwo.setId(2);
+					//beanTwo.setMeaningless("m2");
 					
-					beanTwo.removeMe();
+					log.info("persisting beanTwo");
+					beanTwo.persist();
+					
+					commitUtx();
 						
 				} catch (Throwable ex) {
 						log.warning("Problem in beginWork:");
@@ -118,8 +127,9 @@ public class Client {
     	try {
     		if (ctx == null) {
     			Properties prop=new Properties();
-    			prop.put(Context.INITIAL_CONTEXT_FACTORY,"org.jnp.interfaces.NamingContextFactory");
-    			prop.put(Context.PROVIDER_URL,"127.0.0.1:1099");
+    			prop.put(Context.INITIAL_CONTEXT_FACTORY, "org.jnp.interfaces.NamingContextFactory");
+    			prop.put(Context.URL_PKG_PREFIXES, "org.jboss.naming:org.jnp.interfaces");
+    			prop.put(Context.PROVIDER_URL,"jnp://127.0.0.1:1099");
 
     			ctx = new InitialContext(prop);
 
@@ -154,7 +164,7 @@ public class Client {
 		
 		boolean started = false;
 		
-		if ((ut = getUtx()) == null){
+		if ((ut = getUtx()) != null){
 			return started;
 		};
 

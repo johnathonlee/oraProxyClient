@@ -18,5 +18,6 @@
 	</classpathentry>
 	<classpathentry kind="lib" path="/opt/jboss/jboss-eap-5.0.1/jboss-as/client/jboss-javaee.jar"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/oraProxyTest"/>
+	<classpathentry kind="lib" path="/opt/jboss/jboss-eap-5.0.1/jboss-as/client/ejb3-persistence.jar"/>
 	<classpathentry kind="output" path="target/classes"/>
 </classpath>
